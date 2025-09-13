@@ -1,44 +1,46 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './App.module.css';
 import SearchBar from '../SearchBar/SearchBar';
 import type { Movie } from '../../types/movie';
-import { fetchMovies } from '../../services/movieService';
-import toast from 'react-hot-toast';
 import Loader from '../Loader/Loader';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import MovieGrid from '../MovieGrid/MovieGrid';
 import MovieModal from '../MovieModal/MovieModal';
+import Pagination from '../Pagination/Pagination';
+import { useMoviesQuery } from '../../hooks/useMoviesQuery';
+import toast from 'react-hot-toast';
 
 const App = () => {
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const handleSearch = async (query: string) => {
-    setIsLoading(true);
-    setIsError(false);
-    setMovies([]);
+  const { data, isLoading, isError } = useMoviesQuery({ query, page });
+
+  const movies = data?.results ?? [];
+  const totalPages = data?.total_pages ?? 0;
+
+  const handleSearch = (newQuery: string) => {
+    setQuery(newQuery);
+    setPage(1);
     setSelectedMovie(null);
+  };
 
-    try {
-      const data = await fetchMovies({ query });
+  useEffect(() => {
+    if (isError) {
+      toast.error('Something went wrong. Please try again.');
+    }
+  }, [isError]);
 
+  useEffect(() => {
+    if (query && data) {
       if (data.results.length === 0) {
         toast.error('No movies found for your request');
-        return;
+      } else {
+        toast.success('Movies loaded successfully');
       }
-
-      setMovies(data.results);
-      toast.success('Movies loaded successfully');
-    } catch (error) {
-      setIsError(true);
-      console.error('Fetch error:', error);
-      toast.error('Something went wrong. Please try again.');
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [data, query]);
 
   return (
     <div className={styles.container}>
@@ -47,7 +49,16 @@ const App = () => {
       {isLoading && <Loader />}
       {isError && <ErrorMessage />}
       {movies.length > 0 && (
-        <MovieGrid movies={movies} onSelect={(movie) => setSelectedMovie(movie)} />
+        <>
+          <MovieGrid movies={movies} onSelect={(movie) => setSelectedMovie(movie)} />
+          {totalPages > 1 && (
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={(selectedPage) => setPage(selectedPage)}
+            />
+          )}
+        </>
       )}
       {selectedMovie && (
         <MovieModal movie={selectedMovie} onClose={() => setSelectedMovie(null)} />
