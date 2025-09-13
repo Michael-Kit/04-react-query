@@ -1,3 +1,16 @@
 .app {
     padding: 0 16px;
 }
+.container {
+  background-image: 
+  url('../../assets/img/cinema-bg.jpg'),
+  url('../../assets/img/cinema-bg 2.jpg');
+  background-blend-mode: overlay;
+
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  min-height: 100vh;
+  padding: 32px;
+  color: #fff;
+}

@@ -49,15 +49,19 @@ const App = () => {
       {isLoading && <Loader />}
       {isError && <ErrorMessage />}
       {movies.length > 0 && (
-        <>
-          <MovieGrid movies={movies} onSelect={(movie) => setSelectedMovie(movie)} />
-          {totalPages > 1 && (
-            <Pagination
-              page={page}
-              totalPages={totalPages}
-              onPageChange={(selectedPage) => setPage(selectedPage)}
-            />
-          )}
+        <>{movies.length > 0 && (
+  <>
+    {totalPages > 1 && (
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onPageChange={(selectedPage) => setPage(selectedPage)}
+      />
+    )}
+    <MovieGrid movies={movies} onSelect={(movie) => setSelectedMovie(movie)} />
+  </>
+)}
+
         </>
       )}
       {selectedMovie && (
