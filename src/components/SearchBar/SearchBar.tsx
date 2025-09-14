@@ -1,4 +1,3 @@
-import { Formik, Form, Field } from 'formik';
 import styles from './SearchBar.module.css';
 import toast from 'react-hot-toast';
 
@@ -6,15 +5,9 @@ export interface SearchBarProps {
   onSubmit: (query: string) => void;
 }
 
-interface SearchFormValues {
-  query: string;
-}
-
 const SearchBar = ({ onSubmit }: SearchBarProps) => {
-  const initialValues: SearchFormValues = { query: '' };
-
-  const handleSubmit = (values: SearchFormValues) => {
-    const query = values.query.trim();
+  async function handleFormAction(formData: FormData) {
+    const query = formData.get('query')?.toString().trim();
 
     if (!query) {
       toast.error('Please enter your search query');
@@ -22,7 +15,7 @@ const SearchBar = ({ onSubmit }: SearchBarProps) => {
     }
 
     onSubmit(query);
-  };
+  }
 
   return (
     <header className={styles.header}>
@@ -36,21 +29,19 @@ const SearchBar = ({ onSubmit }: SearchBarProps) => {
           Powered by TMDB
         </a>
 
-        <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-          <Form className={styles.form}>
-            <Field
-              className={styles.input}
-              type="text"
-              name="query"
-              autoComplete="off"
-              placeholder="Search movies..."
-              autoFocus
-            />
-            <button className={styles.button} type="submit">
-              Search
-            </button>
-          </Form>
-        </Formik>
+        <form action={handleFormAction} className={styles.form}>
+          <input
+            className={styles.input}
+            type="text"
+            name="query"
+            autoComplete="off"
+            placeholder="Search movies..."
+            autoFocus
+          />
+          <button className={styles.button} type="submit">
+            Search
+          </button>
+        </form>
       </div>
     </header>
   );
